@@ -1,0 +1,528 @@
+<html>
+<head>
+  <title>csearch.c</title>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<pre>
+<font color="#444444">/* Optimum code search for the Archis project */</font>
+<font color="#444444">/* (c)2002 Adam Ierymenko, All Rights Reserved */</font>
+
+<font color="#444444">/* This program uses a simple &quot;hill-climbing&quot; type search to find the
+   most evolvable mapping of instructions to 6-bit codons.  The results
+   of this program were used in the design of the Genome Virtual Machine
+   for the Archis alife simulator.  This was inspired by the following
+   article:
+   
+   Freeland S. J. and Hurst L. D.  1998.  The Genetic Code is One in
+   a Million.  J. Mol. Evol.  47:238-248.  */</font>
+
+<font color="#444444">/* Should compile with a simple cc or gcc command on any relatively
+   normal Unix system, MacOSX, or on Windows using Cygwin.
+   
+   Example (Linux): gcc -O -s -o csearch csearch.c */</font>
+
+<font color="0000ff"><strong>#include <font color="#008000">&lt;stdio.h&gt;</font></strong></font>
+<font color="0000ff"><strong>#include <font color="#008000">&lt;stdarg.h&gt;</font></strong></font>
+<font color="0000ff"><strong>#include <font color="#008000">&lt;stdlib.h&gt;</font></strong></font>
+<font color="0000ff"><strong>#include <font color="#008000">&lt;unistd.h&gt;</font></strong></font>
+<font color="0000ff"><strong>#include <font color="#008000">&lt;math.h&gt;</font></strong></font>
+<font color="0000ff"><strong>#include <font color="#008000">&lt;time.h&gt;</font></strong></font>
+
+<font color="#444444">/* Some defines that specify various constants in the system */</font>
+<font color="0000ff"><strong>#define NUM_CODES 64</strong></font>
+<font color="0000ff"><strong>#define NUM_CODONS 21</strong></font>
+<font color="0000ff"><strong>#define CODE_LENGTH 6</strong></font>
+<font color="0000ff"><strong>#define DISPLAY_INTERVAL 50000</strong></font>
+
+<font color="#444444">/* Maximum number of trials without an improvment before a new
+   run is undertaken. */</font>
+<font color="0000ff"><strong>#define RUN_RESTART_THRESHOLD 10000000</strong></font>
+
+<font color="#444444">/* Structure for codon info */</font>
+<font color="#444444">/* a = accumulator effect axis
+ * p = pointer effect axis
+ * f = flow effect axis */</font>
+<strong>struct</strong> <font color="#2040a0">codon_info</font> <font color="4444FF"><strong>{</strong></font>
+	<strong>float</strong> <font color="#2040a0">a</font>,<font color="#2040a0">p</font>,<font color="#2040a0">f</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">max</font>,<font color="#2040a0">min</font><font color="4444FF">;</font>
+<font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+<font color="#444444">/* Structure for a code set */</font>
+<strong>struct</strong> <font color="#2040a0">code_set</font> <font color="4444FF"><strong>{</strong></font>
+	<strong>int</strong> <font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">]</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">]</font><font color="4444FF">;</font>
+<font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+<font color="#444444">/* Codes for codons */</font>
+<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="4444FF"><strong>{</strong></font>
+	<font color="#008000">&quot;000000&quot;</font>,
+	<font color="#008000">&quot;000001&quot;</font>,
+	<font color="#008000">&quot;000010&quot;</font>,
+	<font color="#008000">&quot;000011&quot;</font>,
+	<font color="#008000">&quot;000100&quot;</font>,
+	<font color="#008000">&quot;000101&quot;</font>,
+	<font color="#008000">&quot;000110&quot;</font>,
+	<font color="#008000">&quot;000111&quot;</font>,
+	<font color="#008000">&quot;001000&quot;</font>,
+	<font color="#008000">&quot;001001&quot;</font>,
+	<font color="#008000">&quot;001010&quot;</font>,
+	<font color="#008000">&quot;001011&quot;</font>,
+	<font color="#008000">&quot;001100&quot;</font>,
+	<font color="#008000">&quot;001101&quot;</font>,
+	<font color="#008000">&quot;001110&quot;</font>,
+	<font color="#008000">&quot;001111&quot;</font>,
+	<font color="#008000">&quot;010000&quot;</font>,
+	<font color="#008000">&quot;010001&quot;</font>,
+	<font color="#008000">&quot;010010&quot;</font>,
+	<font color="#008000">&quot;010011&quot;</font>,
+	<font color="#008000">&quot;010100&quot;</font>,
+	<font color="#008000">&quot;010101&quot;</font>,
+	<font color="#008000">&quot;010110&quot;</font>,
+	<font color="#008000">&quot;010111&quot;</font>,
+	<font color="#008000">&quot;011000&quot;</font>,
+	<font color="#008000">&quot;011001&quot;</font>,
+	<font color="#008000">&quot;011010&quot;</font>,
+	<font color="#008000">&quot;011011&quot;</font>,
+	<font color="#008000">&quot;011100&quot;</font>,
+	<font color="#008000">&quot;011101&quot;</font>,
+	<font color="#008000">&quot;011110&quot;</font>,
+	<font color="#008000">&quot;011111&quot;</font>,
+	<font color="#008000">&quot;100000&quot;</font>,
+	<font color="#008000">&quot;100001&quot;</font>,
+	<font color="#008000">&quot;100010&quot;</font>,
+	<font color="#008000">&quot;100011&quot;</font>,
+	<font color="#008000">&quot;100100&quot;</font>,
+	<font color="#008000">&quot;100101&quot;</font>,
+	<font color="#008000">&quot;100110&quot;</font>,
+	<font color="#008000">&quot;100111&quot;</font>,
+	<font color="#008000">&quot;101000&quot;</font>,
+	<font color="#008000">&quot;101001&quot;</font>,
+	<font color="#008000">&quot;101010&quot;</font>,
+	<font color="#008000">&quot;101011&quot;</font>,
+	<font color="#008000">&quot;101100&quot;</font>,
+	<font color="#008000">&quot;101101&quot;</font>,
+	<font color="#008000">&quot;101110&quot;</font>,
+	<font color="#008000">&quot;101111&quot;</font>,
+	<font color="#008000">&quot;110000&quot;</font>,
+	<font color="#008000">&quot;110001&quot;</font>,
+	<font color="#008000">&quot;110010&quot;</font>,
+	<font color="#008000">&quot;110011&quot;</font>,
+	<font color="#008000">&quot;110100&quot;</font>,
+	<font color="#008000">&quot;110101&quot;</font>,
+	<font color="#008000">&quot;110110&quot;</font>,
+	<font color="#008000">&quot;110111&quot;</font>,
+	<font color="#008000">&quot;111000&quot;</font>,
+	<font color="#008000">&quot;111001&quot;</font>,
+	<font color="#008000">&quot;111010&quot;</font>,
+	<font color="#008000">&quot;111011&quot;</font>,
+	<font color="#008000">&quot;111100&quot;</font>,
+	<font color="#008000">&quot;111101&quot;</font>,
+	<font color="#008000">&quot;111110&quot;</font>,
+	<font color="#008000">&quot;111111&quot;</font> <font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+<font color="#444444">/* Codons */</font>
+<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">codons</font><font color="4444FF">[</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="4444FF"><strong>{</strong></font>
+	<font color="#008000">&quot;fwd&quot;</font>,
+	<font color="#008000">&quot;back&quot;</font>,
+	<font color="#008000">&quot;go&quot;</font>,
+	<font color="#008000">&quot;add&quot;</font>,
+	<font color="#008000">&quot;mul&quot;</font>,
+	<font color="#008000">&quot;div&quot;</font>,
+	<font color="#008000">&quot;and&quot;</font>,
+	<font color="#008000">&quot;or&quot;</font>,
+	<font color="#008000">&quot;xor&quot;</font>,
+	<font color="#008000">&quot;shl&quot;</font>,
+	<font color="#008000">&quot;shr&quot;</font>,
+	<font color="#008000">&quot;inc&quot;</font>,
+	<font color="#008000">&quot;dec&quot;</font>,
+	<font color="#008000">&quot;sta&quot;</font>,
+	<font color="#008000">&quot;cmp&quot;</font>,
+	<font color="#008000">&quot;loop&quot;</font>,
+	<font color="#008000">&quot;rep&quot;</font>,
+	<font color="#008000">&quot;read&quot;</font>,
+	<font color="#008000">&quot;write&quot;</font>,
+	<font color="#008000">&quot;sch&quot;</font>,
+	<font color="#008000">&quot;stop&quot;</font> <font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+<font color="#444444">/* Codon information structures */</font>
+<strong>struct</strong> <font color="#2040a0">codon_info</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#FF0000">21</font><font color="4444FF">]</font><font color="4444FF">;</font>
+
+<font color="#444444">/* Codons padded for display */</font>
+<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">codons_padded</font><font color="4444FF">[</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="4444FF"><strong>{</strong></font>
+	<font color="#008000">&quot;fwd    &quot;</font>,
+	<font color="#008000">&quot;back   &quot;</font>,
+	<font color="#008000">&quot;go     &quot;</font>,
+	<font color="#008000">&quot;add    &quot;</font>,
+	<font color="#008000">&quot;mul    &quot;</font>,
+	<font color="#008000">&quot;div    &quot;</font>,
+	<font color="#008000">&quot;and    &quot;</font>,
+	<font color="#008000">&quot;or     &quot;</font>,
+	<font color="#008000">&quot;xor    &quot;</font>,
+	<font color="#008000">&quot;shl    &quot;</font>,
+	<font color="#008000">&quot;shr    &quot;</font>,
+	<font color="#008000">&quot;inc    &quot;</font>,
+	<font color="#008000">&quot;dec    &quot;</font>,
+	<font color="#008000">&quot;sta    &quot;</font>,
+	<font color="#008000">&quot;cmp    &quot;</font>,
+	<font color="#008000">&quot;loop   &quot;</font>,
+	<font color="#008000">&quot;rep    &quot;</font>,
+	<font color="#008000">&quot;read   &quot;</font>,
+	<font color="#008000">&quot;write  &quot;</font>,
+	<font color="#008000">&quot;sch    &quot;</font>,
+	<font color="#008000">&quot;stop   &quot;</font> <font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+<font color="#444444">/* Initializes the cinfo[] array */</font>
+<strong>void</strong> <font color="#2040a0">init_cinfo</font><font color="4444FF">(</font><font color="4444FF">)</font>
+<font color="4444FF"><strong>{</strong></font>
+	<strong>int</strong> <font color="#2040a0">x</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* fwd */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">6</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* back */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">6</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* go */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* add */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* mul */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* div */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* and */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* or */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* xor */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* shl */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* shr */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* inc */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* dec */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* sta */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* cmp */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* loop */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* rep */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">1.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* read */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* write */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* sch */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">4</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+	<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">x</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* stop */</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">=</font> <font color="#FF0000">4.0</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">max</font> <font color="4444FF">=</font> <font color="#FF0000">3</font><font color="4444FF">;</font>
+	<font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">x</font><font color="4444FF">]</font>.<font color="#2040a0">min</font> <font color="4444FF">=</font> <font color="#FF0000">2</font><font color="4444FF">;</font>
+<font color="4444FF"><strong>}</strong></font>
+
+<font color="#444444">/* Prints out a code set */</font>
+<strong>void</strong> <font color="#2040a0">print_code_set</font><font color="4444FF">(</font><strong>struct</strong> <font color="#2040a0">code_set</font> <font color="4444FF">*</font><font color="#2040a0">cs</font>,<strong>char</strong> <font color="4444FF">*</font><font color="#2040a0">prefix</font><font color="4444FF">)</font>
+<font color="4444FF"><strong>{</strong></font>
+	<strong>register</strong> <strong>int</strong> <font color="#2040a0">i</font><font color="4444FF">;</font>
+	<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#FF0000">16</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+		<font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">&quot;%s%s 0%x %s  %s %x %s  %s %x %s  %s %x %s<font color="#77dd77">\n</font>&quot;</font>,<font color="#2040a0">prefix</font>,
+			<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="#2040a0">strtol</font><font color="4444FF">(</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="4444FF">(</font><strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="4444FF">)</font><font color="#FF0000">0</font>,<font color="#FF0000">2</font><font color="4444FF">)</font>,<font color="#2040a0">codons_padded</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">]</font>,
+			<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">16</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="#2040a0">strtol</font><font color="4444FF">(</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">16</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="4444FF">(</font><strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="4444FF">)</font><font color="#FF0000">0</font>,<font color="#FF0000">2</font><font color="4444FF">)</font>,<font color="#2040a0">codons_padded</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">16</font><font color="4444FF">]</font><font color="4444FF">]</font>,
+			<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">32</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="#2040a0">strtol</font><font color="4444FF">(</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">32</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="4444FF">(</font><strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="4444FF">)</font><font color="#FF0000">0</font>,<font color="#FF0000">2</font><font color="4444FF">)</font>,<font color="#2040a0">codons_padded</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">32</font><font color="4444FF">]</font><font color="4444FF">]</font>,
+			<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">48</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="#2040a0">strtol</font><font color="4444FF">(</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">48</font><font color="4444FF">]</font><font color="4444FF">]</font>,<font color="4444FF">(</font><strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="4444FF">)</font><font color="#FF0000">0</font>,<font color="#FF0000">2</font><font color="4444FF">)</font>,<font color="#2040a0">codons_padded</font><font color="4444FF">[</font><font color="#2040a0">cs</font><font color="4444FF">-</font><font color="4444FF">&gt;</font><font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="#FF0000">48</font><font color="4444FF">]</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+	<font color="4444FF"><strong>}</strong></font>
+	<font color="#2040a0">fflush</font><font color="4444FF">(</font><font color="#2040a0">stdout</font><font color="4444FF">)</font><font color="4444FF">;</font>
+<font color="4444FF"><strong>}</strong></font>
+
+<strong>int</strong> <font color="#2040a0">main</font><font color="4444FF">(</font><strong>int</strong> <font color="#2040a0">argc</font>,<strong>char</strong> <font color="4444FF">*</font><font color="4444FF">*</font><font color="#2040a0">argv</font><font color="4444FF">)</font>
+<font color="4444FF"><strong>{</strong></font>
+	<font color="#444444">/* Counter and temp variables used in various places */</font>
+	<strong>char</strong> <font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">CODE_LENGTH</font><font color="4444FF">+</font><font color="#FF0000">1</font><font color="4444FF">]</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">counts</font><font color="4444FF">[</font><font color="#2040a0">NUM_CODONS</font><font color="4444FF">]</font><font color="4444FF">;</font>
+	<strong>register</strong> <strong>int</strong> <font color="#2040a0">i</font>,<font color="#2040a0">j</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">count_exceeded</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">newrun</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	<strong>int</strong> <font color="#2040a0">k</font>,<font color="#2040a0">l</font><font color="4444FF">;</font>
+
+	<font color="#444444">/* Variables used in main loop */</font>
+	<strong>register</strong> <strong>float</strong> <font color="#2040a0">n</font>,<font color="#2040a0">distance</font><font color="4444FF">;</font>
+	<strong>float</strong> <font color="#2040a0">current_run_score</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Trial number */</font>
+	<strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">trial</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Run number */</font>
+	<strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">run</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Trial when last improvement was made */</font>
+	<strong>unsigned</strong> <strong>int</strong> <font color="#2040a0">trial_last_improvement</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Current code */</font>
+	<strong>struct</strong> <font color="#2040a0">code_set</font> <font color="#2040a0">current</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Best code out of all sets */</font>
+	<strong>struct</strong> <font color="#2040a0">code_set</font> <font color="#2040a0">best</font><font color="4444FF">;</font>
+	<strong>float</strong> <font color="#2040a0">best_score</font> <font color="4444FF">=</font> <font color="#FF0000">999999.0</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Best code out of current run */</font>
+	<strong>struct</strong> <font color="#2040a0">code_set</font> <font color="#2040a0">best_current_run</font><font color="4444FF">;</font>
+	<strong>float</strong> <font color="#2040a0">best_current_run_score</font> <font color="4444FF">=</font> <font color="#FF0000">999999.0</font><font color="4444FF">;</font>
+
+	<font color="#444444">/* Matrix of potential mutations */</font>
+	<strong>int</strong> <font color="#2040a0">mutations</font><font color="4444FF">[</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">CODE_LENGTH</font><font color="4444FF">]</font><font color="4444FF">;</font>
+
+	<font color="#444444">/* Seed random number generator */</font>
+	<font color="#2040a0">srand</font><font color="4444FF">(</font><font color="4444FF">(</font><font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong><font color="4444FF">)</font><font color="#2040a0">time</font><font color="4444FF">(</font><font color="#2040a0">NULL</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF">*</font> <font color="4444FF">(</font><strong>unsigned</strong> <strong>int</strong><font color="4444FF">)</font><font color="#FF0000">2</font><font color="4444FF">)</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Initialize cinfo[] array */</font>
+	<font color="#2040a0">init_cinfo</font><font color="4444FF">(</font><font color="4444FF">)</font><font color="4444FF">;</font>
+	
+	<font color="#444444">/* Create a matrix of potential single point mutations */</font>
+	<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+		<font color="#2040a0">strcpy</font><font color="4444FF">(</font><font color="#2040a0">newcode</font>,<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">;</font>
+		<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">j</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">j</font><font color="4444FF">&lt;</font><font color="#2040a0">CODE_LENGTH</font><font color="4444FF">;</font><font color="#2040a0">j</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+			<font color="#444444">/* Flip bit j */</font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#008000">'0'</font><font color="4444FF">)</font>
+				<font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'1'</font><font color="4444FF">;</font>
+			<strong>else</strong> <font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'0'</font><font color="4444FF">;</font>
+			
+			<font color="#444444">/* Search for index in code list that mutation matches */</font>
+			<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">k</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">k</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">;</font><font color="#2040a0">k</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">!</font><font color="#2040a0">strcmp</font><font color="4444FF">(</font><font color="#2040a0">newcode</font>,<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">k</font><font color="4444FF">]</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+					<font color="#2040a0">mutations</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">k</font><font color="4444FF">;</font>
+					<strong>break</strong><font color="4444FF">;</font>
+				<font color="4444FF"><strong>}</strong></font>
+			<font color="4444FF"><strong>}</strong></font>
+			
+			<font color="#444444">/* Flip bit j back */</font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#008000">'0'</font><font color="4444FF">)</font>
+				<font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'1'</font><font color="4444FF">;</font>
+			<strong>else</strong> <font color="#2040a0">newcode</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#008000">'0'</font><font color="4444FF">;</font>
+		<font color="4444FF"><strong>}</strong></font>
+	<font color="4444FF"><strong>}</strong></font>
+
+	<font color="#444444">/* Main loop */</font>
+	<strong>for</strong><font color="4444FF">(</font><font color="4444FF">;</font><font color="4444FF">;</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+		<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">trial</font> <font color="4444FF">-</font> <font color="#2040a0">trial_last_improvement</font><font color="4444FF">)</font> <font color="4444FF">&gt;</font> <font color="#2040a0">RUN_RESTART_THRESHOLD</font><font color="4444FF">)</font><font color="4444FF">|</font><font color="4444FF">|</font><font color="4444FF">(</font><font color="#2040a0">trial</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">)</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+			<font color="#444444">/* If this is the start of a run, begin with a random code set */</font>
+			<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">current</font>.<font color="#2040a0">codes</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">i</font><font color="4444FF">;</font>
+				<font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font> <font color="4444FF">%</font> <font color="#2040a0">NUM_CODONS</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+			<font color="#2040a0">best_current_run_score</font> <font color="4444FF">=</font> <font color="#FF0000">999999.0</font><font color="4444FF">;</font>
+			<font color="#2040a0">newrun</font> <font color="4444FF">=</font> <font color="#FF0000">1</font><font color="4444FF">;</font>
+		<font color="4444FF"><strong>}</strong></font> <strong>else</strong> <font color="4444FF"><strong>{</strong></font>
+			<font color="#444444">/* Otherwise, perturb the current best code set of run */</font>
+			<font color="#2040a0">memcpy</font><font color="4444FF">(</font><font color="4444FF">&amp;</font><font color="#2040a0">current</font>,<font color="4444FF">&amp;</font><font color="#2040a0">best_current_run</font>,<strong>sizeof</strong><font color="4444FF">(</font><strong>struct</strong> <font color="#2040a0">code_set</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+			<font color="#2040a0">j</font> <font color="4444FF">=</font> <font color="4444FF">(</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font> <font color="4444FF">%</font> <font color="#FF0000">6</font><font color="4444FF">)</font><font color="4444FF">+</font><font color="#FF0000">1</font><font color="4444FF">;</font>
+			<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">j</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font>
+				<font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font> <font color="4444FF">%</font> <font color="#2040a0">NUM_CODES</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#2040a0">rand</font><font color="4444FF">(</font><font color="4444FF">)</font> <font color="4444FF">%</font> <font color="#2040a0">NUM_CODONS</font><font color="4444FF">;</font>
+		<font color="4444FF"><strong>}</strong></font>
+		
+		<font color="#444444">/* Check to make sure counts for each codon to not exceed specified
+		   threshold values. */</font>
+		<font color="#2040a0">count_exceeded</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+		<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODONS</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font>
+			<font color="#2040a0">counts</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+		<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">counts</font><font color="4444FF">[</font><font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">]</font> <font color="4444FF">&gt;</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">]</font>.<font color="#2040a0">max</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">count_exceeded</font> <font color="4444FF">=</font> <font color="#FF0000">1</font><font color="4444FF">;</font>
+				<strong>break</strong><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+		<font color="4444FF"><strong>}</strong></font>
+		<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">!</font><font color="#2040a0">count_exceeded</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+			<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODONS</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">counts</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font> <font color="4444FF">&lt;</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font>.<font color="#2040a0">min</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+					<font color="#2040a0">count_exceeded</font> <font color="4444FF">=</font> <font color="#FF0000">1</font><font color="4444FF">;</font>
+					<strong>break</strong><font color="4444FF">;</font>
+				<font color="4444FF"><strong>}</strong></font>
+			<font color="4444FF"><strong>}</strong></font>
+		<font color="4444FF"><strong>}</strong></font>
+
+		<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">!</font><font color="#2040a0">count_exceeded</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+			<font color="#444444">/* Increment run counter if we made it this far and it's a new run */</font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">newrun</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">newrun</font> <font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">;</font>
+				<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">trial</font> <font color="4444FF">&gt;</font> <font color="#FF0000">0</font><font color="4444FF">)</font>
+					<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">run</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+			
+			<font color="#444444">/* Here we compute the distance from one codon to
+			 * another for all it's mutations. */</font>
+			<font color="#2040a0">current_run_score</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+			<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">i</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">&lt;</font><font color="#2040a0">NUM_CODES</font><font color="4444FF">;</font><font color="#2040a0">i</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">distance</font> <font color="4444FF">=</font> <font color="#FF0000">0.0</font><font color="4444FF">;</font>
+				<font color="#2040a0">k</font> <font color="4444FF">=</font> <font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">;</font>
+				<strong>for</strong><font color="4444FF">(</font><font color="#2040a0">j</font><font color="4444FF">=</font><font color="#FF0000">0</font><font color="4444FF">;</font><font color="#2040a0">j</font><font color="4444FF">&lt;</font><font color="#2040a0">CODE_LENGTH</font><font color="4444FF">;</font><font color="#2040a0">j</font><font color="4444FF">+</font><font color="4444FF">+</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+					<font color="#2040a0">l</font> <font color="4444FF">=</font> <font color="#2040a0">current</font>.<font color="#2040a0">code_mappings</font><font color="4444FF">[</font><font color="#2040a0">mutations</font><font color="4444FF">[</font><font color="#2040a0">i</font><font color="4444FF">]</font><font color="4444FF">[</font><font color="#2040a0">j</font><font color="4444FF">]</font><font color="4444FF">]</font><font color="4444FF">;</font>
+					<font color="#444444">/* Penalty if mutation results in a different codon */</font>
+					<strong>if</strong> <font color="4444FF">(</font><font color="#2040a0">k</font> <font color="4444FF">!</font><font color="4444FF">=</font> <font color="#2040a0">l</font><font color="4444FF">)</font>
+						<font color="#2040a0">distance</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#FF0000">2.0</font><font color="4444FF">;</font>
+					<font color="#2040a0">n</font> <font color="4444FF">=</font> <font color="4444FF">(</font><font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">k</font><font color="4444FF">]</font>.<font color="#2040a0">p</font> <font color="4444FF">-</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">l</font><font color="4444FF">]</font>.<font color="#2040a0">p</font><font color="4444FF">)</font><font color="4444FF">;</font>
+					<font color="#2040a0">distance</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">n</font> <font color="4444FF">*</font> <font color="#2040a0">n</font><font color="4444FF">;</font>
+					<font color="#2040a0">n</font> <font color="4444FF">=</font> <font color="4444FF">(</font><font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">k</font><font color="4444FF">]</font>.<font color="#2040a0">a</font> <font color="4444FF">-</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">l</font><font color="4444FF">]</font>.<font color="#2040a0">a</font><font color="4444FF">)</font><font color="4444FF">;</font>
+					<font color="#2040a0">distance</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">n</font> <font color="4444FF">*</font> <font color="#2040a0">n</font><font color="4444FF">;</font>
+					<font color="#2040a0">n</font> <font color="4444FF">=</font> <font color="4444FF">(</font><font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">k</font><font color="4444FF">]</font>.<font color="#2040a0">f</font> <font color="4444FF">-</font> <font color="#2040a0">cinfo</font><font color="4444FF">[</font><font color="#2040a0">l</font><font color="4444FF">]</font>.<font color="#2040a0">f</font><font color="4444FF">)</font><font color="4444FF">;</font>
+					<font color="#2040a0">distance</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">n</font> <font color="4444FF">*</font> <font color="#2040a0">n</font><font color="4444FF">;</font>
+				<font color="4444FF"><strong>}</strong></font>
+				<font color="#2040a0">current_run_score</font> <font color="4444FF">+</font><font color="4444FF">=</font> <font color="#2040a0">distance</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+			<font color="#2040a0">current_run_score</font> /<font color="4444FF">=</font> <font color="#FF0000">64.0</font><font color="4444FF">;</font>
+						
+			<font color="#444444">/* Look for best scores if our improvement exceeds a certain
+			   threshold value intended to compensate for FPU wierness or
+			   minor insignificant improvements. */</font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">best_score</font> <font color="4444FF">-</font> <font color="#2040a0">current_run_score</font><font color="4444FF">)</font> <font color="4444FF">&gt;</font> <font color="#FF0000">0.0000001</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">memcpy</font><font color="4444FF">(</font><font color="4444FF">&amp;</font><font color="#2040a0">best</font>,<font color="4444FF">&amp;</font><font color="#2040a0">current</font>,<strong>sizeof</strong><font color="4444FF">(</font><strong>struct</strong> <font color="#2040a0">code_set</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">best_score</font> <font color="4444FF">=</font> <font color="#2040a0">current_run_score</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">best_current_run_score</font> <font color="4444FF">-</font> <font color="#2040a0">current_run_score</font><font color="4444FF">)</font> <font color="4444FF">&gt;</font> <font color="#FF0000">0.0000001</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">memcpy</font><font color="4444FF">(</font><font color="4444FF">&amp;</font><font color="#2040a0">best_current_run</font>,<font color="4444FF">&amp;</font><font color="#2040a0">current</font>,<strong>sizeof</strong><font color="4444FF">(</font><strong>struct</strong> <font color="#2040a0">code_set</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">best_current_run_score</font> <font color="4444FF">=</font> <font color="#2040a0">current_run_score</font><font color="4444FF">;</font>
+				<font color="#2040a0">trial_last_improvement</font> <font color="4444FF">=</font> <font color="#2040a0">trial</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+
+			<font color="#444444">/* Display status periodically */</font>
+			<strong>if</strong> <font color="4444FF">(</font><font color="4444FF">(</font><font color="#2040a0">trial</font> <font color="4444FF">%</font> <font color="#2040a0">DISPLAY_INTERVAL</font><font color="4444FF">)</font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">0</font><font color="4444FF">)</font> <font color="4444FF"><strong>{</strong></font>
+				<font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">&quot;*** Trial: %u, Run: %u ***<font color="#77dd77">\n</font><font color="#77dd77">\n</font>&quot;</font>,<font color="#2040a0">trial</font>,<font color="#2040a0">run</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">&quot;Best score for current run: %13.18f<font color="#77dd77">\n</font>&quot;</font>,<font color="#2040a0">best_current_run_score</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">print_code_set</font><font color="4444FF">(</font><font color="4444FF">&amp;</font><font color="#2040a0">best_current_run</font>,<font color="#008000">&quot;  &quot;</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">&quot;(Trials since last improvement: %u)<font color="#77dd77">\n</font>&quot;</font>,<font color="4444FF">(</font><font color="#2040a0">trial</font> <font color="4444FF">-</font> <font color="#2040a0">trial_last_improvement</font><font color="4444FF">)</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">printf</font><font color="4444FF">(</font><font color="#008000">&quot;<font color="#77dd77">\n</font>Best score for all runs: %13.18f<font color="#77dd77">\n</font>&quot;</font>,<font color="#2040a0">best_score</font><font color="4444FF">)</font><font color="4444FF">;</font>
+				<font color="#2040a0">print_code_set</font><font color="4444FF">(</font><font color="4444FF">&amp;</font><font color="#2040a0">best</font>,<font color="#008000">&quot;  &quot;</font><font color="4444FF">)</font><font color="4444FF">;</font>
+			<font color="4444FF"><strong>}</strong></font>
+			
+			<font color="4444FF">+</font><font color="4444FF">+</font><font color="#2040a0">trial</font><font color="4444FF">;</font>
+		<font color="4444FF"><strong>}</strong></font>
+	<font color="4444FF"><strong>}</strong></font>
+<font color="4444FF"><strong>}</strong></font>
+
+</pre>
+<hr>
+syntax highlighted by <a href="http://www.palfrader.org/code2html">Code2HTML</a>, v. 0.9.1
+</body>
+</html>

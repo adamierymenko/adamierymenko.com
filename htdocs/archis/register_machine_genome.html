@@ -1,0 +1,164 @@
+<html>
+<head>
+<title>RegisterMachineGenome Instruction Set</title>
+<style type="text/css">
+.description_td
+{
+border-left: 0px;
+border-right: 1px solid #000000;
+border-top: 1px solid #000000;
+border-bottom: 1px solid #000000;
+}
+.link_td
+{
+border-left: 1px solid #000000;
+border-right: 1px dotted #888888;
+border-top: 1px solid #000000;
+border-bottom: 1px solid #000000;
+}
+.description_td2
+{
+border-left: 0px;
+border-right: 1px solid #000000;
+border-top: 0px;
+border-bottom: 1px solid #000000;
+}
+.link_td2
+{
+border-left: 1px solid #000000;
+border-right: 1px dotted #888888;
+border-top: 0px;
+border-bottom: 1px solid #000000;
+}
+</style>
+</head>
+<body background="cabg.jpg" text="#000000" alink="#000000" link="#000000" vlink="#000000">
+<table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" height="100%">
+<tr><td valign="middle" align="center" height="100%" width="100%">
+<table border="0" cellpadding="10" cellspacing="0" align="center" width="80%">
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 0px; border-bottom: 2px dotted #000088;" valign="middle" align="left">
+<font face="verdana,arial" size="3"><b>RegisterMachineGenome Instruction Set</b></font>
+</td></tr>
+
+<tr><td align="left">
+<p><font face="verdana,arial" size="2">RegisterMachineGenome has an instruciton set made up of 21 simple instructions and a single accumulator register.</font></p>
+<p>
+<table border="0" cellpadding="2" cellspacing="0" align="center" width="100%">
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td"><font face="verdana,arial" size="3"><b>FWD&nbsp;(f)</b></font></td>
+<td bgcolor="#dddddd" class="description_td"><font face="verdana,arial" size="2">Move memory pointer forward one position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>BACK&nbsp;(b)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Move memory pointer back one position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>GO&nbsp;(g)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Move memory pointer to location specified by accumulator (also starts execution)</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>ADD&nbsp;(+)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Add memory value at current position to accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>MUL&nbsp;(*)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Multiply accumuator with memory value at current position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>DIV&nbsp;(/)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Divide accumuator by memory value at current position (divide by zero results in zero)</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>AND&nbsp;(&amp;)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Bitwise AND accumulator with memory value at current position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>OR&nbsp;(|)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Bitwise OR accumulator with memory value at current position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>XOR&nbsp;(^)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Bitwise XOR accumulator with memory value at current position</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>SHL&nbsp;(])</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Bitwise left shift accumulator value</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>SHR&nbsp;([)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Bitwise right shift accumulator value</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>INC&nbsp;(&gt;)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Increment accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>DEC&nbsp;(&lt;)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Decrement accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>STA&nbsp;(#)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Store accumulator to memory at current position and zero accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>CMP&nbsp;(?)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Set accumulator to -1, 0, or 1 depending on whether memory value is less than, equal to, or greater than accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>LOOP&nbsp;({)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Jump to matching REP (}) if accumulator is zero</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>REP&nbsp;(})</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Jump back to matching LOOP ({) if accumulator is nonzero</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>READ&nbsp;(r)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Read from current I/O channel into accumulator</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>WRITE&nbsp;(w)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Write accumulator to current I/O channel</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>SCH&nbsp;(s)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Set I/O channel to current accumulator value</font></td>
+</tr>
+<tr>
+<td bgcolor="#eeeeee" valign="middle" class="link_td2"><font face="verdana,arial" size="3"><b>STOP&nbsp;(!)</b></font></td>
+<td bgcolor="#dddddd" class="description_td2"><font face="verdana,arial" size="2">Stop execution until a GO (g) instruction is reached and zero accumulator</font></td>
+</tr>
+</table>
+</p>
+<font face="verdana,arial" size="2">
+<p>
+All instructions such as ADD, SUB, MUL, AND, etc. that operate on the accumulator place their
+results in the accumulator as well. Instructions such as GO and SCH that set locations based
+on the value of the accumulator wrap if the accumulator is out of range and take the absolute
+value if the accumulator is negative. (e.g. GO uses abs(a) % sizeof(memory))
+</p>
+<p>
+When execution starts, the virtual machine is in "intron" state, meaning that
+it doesn't execute anything until a GO instruction is encountered. (GO doubles
+as a "start gene" instruction.) The genome virtual machine then enters "exon"
+state and executes instructions until a STOP instruction is encountered. A
+STOP instruction places the GVM back into intron state and zeros the memory
+pointer, channel, and accumulator values. STOP has this effect no matter
+where it occurs, even inside a false {} block. The resetting of state upon
+encountering a STOP instruction means that seperate blocks delimited by GO
+and STOP can function independently of each other, permitting modularity to
+evolve.
+</p>
+<p>
+The RegisterMachineGenome instruction set was very loosely based on a toy programming language
+called <a href="http://www.muppetlabs.com/~breadbox/bf/" target="_blank">Brainfuck</a>.
+</p>
+</font>
+</td></tr>
+
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 2px dotted #000088; border-bottom: 0px;" valign="middle" align="left"><font face="verdana,arial" size="3"><b><a href="about.html">&lt;&lt;&nbsp;Back&nbsp;to&nbsp;About</a></b></font></td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

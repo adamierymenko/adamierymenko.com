@@ -1,0 +1,10 @@
+* {
+	font-size: 16pt !important;
+}
+hr {
+	border: 0;
+	border-bottom: 1px solid #ffffff;
+}
+p a {
+	color: #00ffff;
+}

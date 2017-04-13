@@ -1,0 +1,11 @@
+com.generalnegentropics.archis
+com.generalnegentropics.archis.cmdline
+com.generalnegentropics.archis.life
+com.generalnegentropics.archis.life.vms
+com.generalnegentropics.archis.net
+com.generalnegentropics.archis.universe
+com.generalnegentropics.archis.universe.catastrophes
+com.generalnegentropics.archis.universe.environmentalconditions
+com.generalnegentropics.archis.universe.probes
+com.generalnegentropics.archis.universe.rewardfunctions
+com.generalnegentropics.archis.utils

@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Download Archis</title>
+</head>
+<body background="cabg.jpg" text="#000000" alink="#000000" link="#000000" vlink="#000000">
+<table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" height="100%">
+<tr><td valign="middle" align="center" height="100%" width="100%">
+<table border="0" cellpadding="10" cellspacing="0" align="center" width="80%">
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 0px; border-bottom: 2px dotted #000088;" valign="middle" align="left">
+<font face="verdana,arial" size="3"><b>Download Archis</b></font>
+</td></tr>
+
+<tr><td align="left">
+<p><font face="verdana,arial" size="3"><b><u>System Requirements</u></b></font></p>
+<font face="verdana,arial" size="2">
+<p>
+Archis recommends at least a 500mhz Pentium-class (Pentium, AMD Athlon, etc.) CPU
+or equivalent with at least 256mb of system memory. It does not require much
+hard drive space unless you wish to log the results of long simulation runs.
+</p>
+<p>
+<b><u>Java version 1.4.0 or later is required.</u></b> If you have a MacOSX system, you already have Java
+installed. If not, you may have to download and install it. To check your
+Java version, go to your command prompt and type "java -version".
+Most people will want to use the Sun Java Standard Edition runtime environment which is
+<a href="http://java.sun.com/getjava" target="_blank">available here</a>
+and is easy to install. (It can be installed with only a few clicks under
+Microsoft Windows.) If you are running Linux, Sun also has a standard JVM
+available. However, you may experience better performance (especially on
+multiprocessor SMP systems) using IBM's JDK for Linux which is
+<a href="http://www-106.ibm.com/developerworks/views/java/downloads.jsp" target="_blank">available here</a>.
+(Find the link for "IBM Developer Kit for Linux.") Last time I tested it,
+the open-source Kaffe virtual machine was not capable of running Archis.
+</p>
+<p>
+If you can't find a JVM for your operating system or hardware, try
+<a href="http://www.google.com/" target="_blank">searching the Internet</a>
+or contacting your vendor.
+</p>
+</font>
+<p><font face="verdana,arial" size="3"><b><u>Download the Archis JAR File</u></b></font></p>
+<font face="verdana,arial" size="3">
+<p>
+<a href="jars/archis-1.0.1.jar" style="color: #000088"><b>Download archis-1.0.1.jar</b></a><br>
+(you may have to right-click to save if your browser tries to launch the jar file)
+</p>
+</font>
+<p><font face="verdana,arial" size="3"><b><u>Running Archis</u></b></font></p>
+<font face="verdana,arial" size="2">
+<p>
+On Windows and MacOSX, you may be able to run Archis by simply
+double-clicking on the JAR file. However, running Archis this way will
+not permit you to control how much memory it has available. On most systems,
+Java limits applications to 128mb of memory by default. Most of the time if
+you are running smaller simulations this should be enough. If you want to give
+Archis more memory, you will have to run it from a command prompt (or create
+a special run link if you want to stay GUI :) to specify the maximum memory
+option for the Java virtual machine.
+</p>
+<p>
+To run Archis from the command prompt type:
+</p>
+<p>
+java -XmxNNNm archis-x.x.x.jar
+</p>
+<p>
+Here NNN is the amount of memory in megabytes to give the Java VM and
+archis-x.x.x.jar is the JAR file that you downloaded from here. For example,
+you could use -Xmx512m to allow Archis to use 512mb of system memory.
+</p>
+<p>
+Check the <a href="resources.html">resources page</a> for some sample
+genomes to seed the universe with if you don't want to wait for random
+genesis.
+</p>
+</font>
+<p><font face="verdana,arial" size="3"><b><u>Source Code</u></b></font></p>
+<font face="verdana,arial" size="2">
+<p>
+If you are interested in hacking or simply want to see what the source code
+to an artificial life simulator looks like, you can download Archis source
+code here.
+</p>
+<p>
+The core classes (everything outside of the gui package) are fairly clean
+and well-documented code. The GUI code is fairly messy, and a copy of
+<a href="http://www.borland.com/products/downloads/download_jbuilder.html" target="_blank">Borland JBuilder</a>
+is highly recommended to make sense of it. JBuilder
+Foundation is free for non-commercial use and contains the GUI designer, and you can download it from
+Borland's site by following the link. JBuilder is by far the best Java
+development environment and is among the best development environments I've
+ever seen for any language, so I highly recommend it.
+</p>
+</font>
+<font face="verdana,arial" size="3">
+<p>
+<a href="source/archis-1.0.1-src.zip" style="color: #000088"><b>Download archis-1.0.1-src.zip</b></a>
+</p>
+</font>
+</td></tr>
+
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 2px dotted #000088; border-bottom: 0px;" valign="middle" align="left"><font face="verdana,arial" size="3"><b><a href="index.html">&lt;&lt;&nbsp;Back&nbsp;to&nbsp;Home</a></b></font></td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

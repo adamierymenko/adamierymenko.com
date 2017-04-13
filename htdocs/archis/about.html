@@ -1,0 +1,159 @@
+<html>
+<head>
+<title>About Archis</title>
+</head>
+<body background="cabg.jpg" text="#000000" alink="#000000" link="#000000" vlink="#000000">
+<table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" height="100%">
+<tr><td valign="middle" align="center" height="100%" width="100%">
+<table border="0" cellpadding="10" cellspacing="0" align="center" width="80%">
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 0px; border-bottom: 2px dotted #000088;" valign="middle" align="left">
+<font face="verdana,arial" size="3"><b>About Archis</b></font>
+</td></tr>
+
+<tr><td align="left">
+<p><font face="verdana,arial" size="3"><b><u>Overview</u></b></font></p>
+<font face="verdana,arial" size="2">
+<p>
+Archis is an extendable general platform for artificial life simulations
+written in the Java programming language.  It has many advanced features
+including:
+</p>
+<p>
+<ul>
+<li type="disc">Friendly and polished graphical user interface</li>
+<li type="disc">The universe inhabited by cells is <i>extremely</i> customizable through plugins</li>
+<li type="disc">Supports multiple types of "genome virtual machines" through the Genome interface</li>
+<li type="disc">Unified, plugin-based probe interface for gathering special information about the simulation</li>
+<li type="disc">Unified, plugin-based reward function interface with centrally-configurable total reward distribution and an easy-to-understand point system for reward scoring</li>
+<li type="disc">NetServer for centralized command and data collection</li>
+<li type="disc">Supports data collection in GZIP compressed .CSV files (comma seperated variable) suitable for import into SQL databases, Microsoft Excel, SAS, SigmaStat, or other tools (a GZIP-decompressor may be required)</li>
+<li type="disc">High-performance, highly-optimized, and cleanly multithreaded code able to take full advantage of multiprocessor systems</li>
+<li type="disc">Configurable pseudo-random number generator permits multiple replicate experiments with reproducibility</li>
+</ul>
+</p>
+<p>
+These features make Archis a uniquely flexible and easy to use tool for doing
+research in artificial life.  One of the features that really makes Archis
+special is it's plugin-based universe.  Every aspect of the universe, from
+the "physics" of cellular reproduction to the landscape inhabited by cells
+is provided by plugins that operate according to a common interface.  For
+example, using the normal ReproductionCondition cells must go through the
+actual mechanics of their own reproduction in an artificial-life-like way.
+However, by using GPReproductionCondition, cells can be artificially copied
+according to their reward function score in a way more akin to classical
+genetic programming. Archis can be changed from a "strong alife" system to
+a classical genetic programming system by simply changing plugins around!
+</p>
+<p>
+Archis currently contains one type of genome virtual machine, though others
+can be added easily. It is called RegisterMachineGenome and implements a
+small Turing-complete instruction-based language with 21 instructions mapped
+to 64 6-bit codons. The mapping of codons to instructions was pre-generated
+using a small C program <a href="csearch.c.html" target="_blank">that you
+can find here</a>. This mapping was designed to be as evolvable as possible.
+In other words, the mapping of instructions to codons was optimized so that
+a single point mutation of one bit would be as unlikely as possible to cause
+an instruction to change to a fundamentally different type of instruciton.
+This means that, for example, a mutation is more likely to change ADD to
+SUB than to change ADD to STOP.  This was inspired by the following paper:
+</p>
+<p>
+Freeland S. J. and Hurst L. D. 1998. <i>The Genetic Code is One in a Million.</i>
+J. Mol. Evol. 47:238-249.
+</p>
+<p>
+In the future, a variation of RegisterMachineGenome may be added that will
+permit the <i>mapping</i> of instructions to codons to evolve as well as
+the instruction sequence itself.
+</p>
+<p><a href="register_machine_genome.html">Click here to see the RegisterMachineGenome instruction set</a>.</p>
+<p>
+Once there are more genome types, it will be possible to conduct evolutionary
+"tournaments" between them as cells inhabiting the same universe may easily
+have different genome virtual machine types.
+</p>
+<p>
+Archis has another great feature lacking from many artificial life simulators:
+a good graphical user interface. The Archis GUI is written using Java's Swing
+toolkit and permits easy interaction with the simulation and visualization
+of the results in real-time. Conditions can be enabled, disabled, and configured
+and each condition can have it's own GUI frame where it can show it's results.
+For instance, Landscape2D has a GUI frame where the landscape can be seen and
+it's parameters can be adjusted. A good GUI makes Archis suitable for
+anyone to explore artificial life, and also makes it potentially useful in
+educational settings. It also makes it a lot easier to see what's going on.
+</p>
+<p>
+The goal of Archis is to be both simple and flexible. Other simulators that
+I've seen are either far more complicated to use and to interpret results
+from or are far less flexible with all characteristics of the universe
+being hard-coded. Archis is designed so that the user can easily see what's
+going on and so that anyone who knows Java can easily and radically customize
+the environment for whatever type of experiment they wish to conduct.
+</p>
+</font>
+<p><font face="verdana,arial" size="3"><b><u>Frequently Asked Questions</u></b></font></p>
+<font face="verdana,arial" size="2">
+<p>
+Q: <b>Is Archis free?</b><br>
+A: Archis has been released under the GNU "Lesser" General Public License. Binary
+distributions of release versions and source code are available on the
+Download page.  The LGPL has been used as opposed to the GPL because it is
+more compatible with how Java works (essentially, all Java programs are
+libraries).
+</p>
+<p>
+Q: <b>How stable is the Archis API? Should I write my own plugins?</b><br>
+A: The APIs are about the consistency of gummi bears or gelatin at this point; they
+have not yet hardened by they've congealed into their basic form.  If you implement
+your own plugins, be prepared to make overhauls.  :)
+</p>
+<p>
+Q: <b>How long has Archis been under development?</b><br>
+A: Archis development began in summer 2001. It has been in active development
+for over two years, and it's goal is to create a general platform for
+artificial life simulations of certain kinds. Archis has been revised many
+times in an attempt to make it as fast and as generalized as possible. At
+the moment, it consists of over 20,000 lines of code.
+</p>
+<p>
+Q: <b>Why would you write something this speed and CPU intensive in Java?</b><br>
+A: Java is no longer slow, and hasn't been since about 1.3.0 or so. Java
+presently performs comparably or only slightly slower than C++ with a good
+modern virtual machine (though it
+does use more memory). Basically, it was a tradeoff of a little bit of speed
+and memory for much faster application development, cross platform execution, easy
+plugin architecture, and much simpler cross-platform multithreaded programming.
+In C++, Archis would probably have to be closer to 80,000 lines of code (especially
+if threadedness was implemented on multiple OS/CPU platforms!) instead
+of 20,000. If you want more information, Usenet and the web are filled with
+<a href="http://www.catb.org/~esr/jargon/html/H/holy-wars.html" target="_blank">Holy Wars</a>
+on the subject. :)
+</p>
+<p>
+Q: <b>Are there any similar projects out there?</b><br>
+A: Yes, visit the links page. In particular, you might want to look at
+<a href="http://dllab.caltech.edu/avida/" target="_blank">AVIDA</a> at the Digital Life
+Lab at Caltech. It is similar though not as customizable, and has been used
+in published research.
+</p>
+<p>
+Q: <b>Has research done with Archis been featured in any publications?</b><br>
+A: Not yet, I'm working on it. :)
+</p>
+<p>
+Q: <b>This stuff is neat! Where can I find out more about artificial life?</b><br>
+A: Visit the links page and visit the <a href="http://www.alife.org/" target="_blank">International
+Society of Artificial Life</a>. There is also a journal of Artificial Life published
+by the MIT press that can be found <a href="http://mitpress.mit.edu/catalog/item/default.asp?ttype=4&tid=41" target="_blank">
+here</a>.
+</p>
+</font>
+</td></tr>
+
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 2px dotted #000088; border-bottom: 0px;" valign="middle" align="left"><font face="verdana,arial" size="3"><b><a href="index.html">&lt;&lt;&nbsp;Back&nbsp;to&nbsp;Home</a></b></font></td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>

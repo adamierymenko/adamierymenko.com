@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>Archis To-Do List</title>
+<style type="text/css">
+.description_td
+{
+border-left: 0px;
+border-right: 1px solid #000000;
+border-top: 1px solid #000000;
+border-bottom: 1px solid #000000;
+}
+.link_td
+{
+border-left: 1px solid #000000;
+border-right: 1px dotted #888888;
+border-top: 1px solid #000000;
+border-bottom: 1px solid #000000;
+}
+.description_td2
+{
+border-left: 0px;
+border-right: 1px solid #000000;
+border-top: 0px;
+border-bottom: 1px solid #000000;
+}
+.link_td2
+{
+border-left: 1px solid #000000;
+border-right: 1px dotted #888888;
+border-top: 0px;
+border-bottom: 1px solid #000000;
+}
+</style>
+</head>
+<body background="cabg.jpg" text="#000000" alink="#000000" link="#000000" vlink="#000000">
+<table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" height="100%">
+<tr><td valign="middle" align="center" height="100%" width="100%">
+<table border="0" cellpadding="10" cellspacing="0" align="center" width="80%">
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 0px; border-bottom: 2px dotted #000088;" valign="middle" align="left">
+<font face="verdana,arial" size="3"><b>Archis To-Do List</b></font>
+</td></tr>
+
+<tr><td align="left">
+<font face="verdana,arial" size="3">
+<p><b>To-do list for web site:</b></p>
+<p>
+<ul>
+<li type="disc">More documentation</li>
+<li type="disc">Some more examples and screenshots</li>
+</ul>
+</p>
+<p><b>Known bugs:</b></p>
+<p>
+<ul>
+<li type="disc">If you're controlling a simulation via command line and GUI at the same time, sometimes parameter changes made in the command line aren't reflected in the GUI</li>
+<li type="disc">ChiSquareProbe may not be doing the right thing mathematically-speaking</li>
+<li type="disc">NetServer performs a bit poorly with many clients-- need to rewrite using selectable I/O instead of thread-per-connection I/O</li>
+<li type="disc">Total adhered movement is a 32-bit int and will wrap around-- needs to be 64-bit long</li>
+</ul>
+</p>
+<p><b>Short-term to-do list for Archis:</b></p>
+<p>
+<ul>
+<li type="disc">Ability to load and save simulations</li>
+<li type="disc">Fix genome examination window to better insert carriage returns and tabs and such</li>
+<li type="disc">Selection of cell color coding schemes in Landscape2D window</li>
+<li type="disc">Screensaver mode for "ALife@Home" style use</li>
+<li type="disc">Better plugin management without having to edit source</li>
+<li type="disc">Cell lineage tracking and long-term generational tracking, possibly with characteristic flagging (for tracing evolutionary pathways)</li>
+<li type="disc">More reward functions</li>
+<li type="disc">Math expressions in some parameter fields to permit time and state dependant values that change as the simulation progresses (e.g. set total reward to ((clock * 0.1) + 1000000) to increase reward with time)</li>
+<li type="disc">Clean up the Condition and Probe interfaces some more</li>
+<li type="disc">Better command line interface</li>
+<li type="disc">In the GUI, the ability to graph any statistic in realtime by right-clicking on it (in both Simulation and NetServer GUI)</li>
+<li type="disc">Decentralized peer-to-peer networking capabilities and more advanced NetServer</li>
+<li type="disc">An audio output capability so you can hear new cell data as it's introduced into the universe (just for coolness factor, and maybe to hear patterns)</li>
+</ul>
+</p>
+<p><b>Long-term to-do list for Archis:</b></p>
+<p>
+<ul>
+<li type="disc">Heuristic classification of organisms: simple replicators, parasites, predators, cooperators, etc.</li>
+<li type="disc">New genome virtual machines, such as perhaps neural networks or more elementary artificial chemistries</li>
+<li type="disc">Landscape3D (perhaps using the Java3D API)</li>
+<li type="disc">LandscapeND: a landscape with an arbitrary number of dimensions (this might be very interesting... what would evolve in a Landscape8D?)</li>
+</ul>
+</p>
+</font>
+</td></tr>
+
+<tr><td style="border-left: 0px; border-right: 2px dotted #000088; border-top: 2px dotted #000088; border-bottom: 0px;" valign="middle" align="left"><font face="verdana,arial" size="3"><b><a href="resources.html">&lt;&lt;&nbsp;Back&nbsp;to&nbsp;Resources</a></b></font></td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>
