@@ -1,10 +1,25 @@
 * {
 	font-size: 16pt !important;
 }
+body {
+	padding: 2% !important;
+	background: #000000 !important;
+}
 hr {
 	border: 0;
 	border-bottom: 1px solid #ffffff;
 }
 p a {
 	color: #00ffff;
+}
+h1 {
+	background: #00aa00;
+	color: #ffffff;
+	padding: 19px 1ch 19px 1ch;
+	margin: 0 0 38px 0;
+}
+h2 {
+	color: #ffff00;
+	background: #0000aa;
+	padding: 19px 1ch 19px 1ch;
 }
