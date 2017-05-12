@@ -1,0 +1,64 @@
+@font-face {
+	font-family: 'C64 Pro Mono Local';
+	src: url(C64_Pro_Mono-STYLE.woff2) format('woff2'),url(C64_Pro_Mono-STYLE.woff) format('woff'),url(C64_Pro_Mono-STYLE.ttf) format('truetype');
+}
+
+html {
+	font-family: "C64 Pro Mono Local","Courier New",monospace;
+	font-size: 24pt;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	background: #aba5ff;
+	font-size: 2.25vw;
+	overflow: hidden;
+}
+
+div.main {
+	background: #1a00aa;
+	color: #aba5ff;
+	overflow: scroll;
+	position: absolute;
+	top: 5vw;
+	left: 5vw;
+	width: 40ch;
+	height: calc(100% - 10vw);
+	white-space: pre-line;
+}
+
+a {
+	text-decoration: none;
+	color: #ffff00;
+}
+a:hover {
+	text-decoration: none;
+	color: #000000;
+	background: #ffff00;
+}
+
+h1,h2,h3,h4 {
+	font-size: inherit;
+	margin: 0;
+	padding: 0;
+	display: block;
+}
+h1 {
+	color: #ffffff;
+	background: #000000;
+}
+h2 {
+	color: #999999;
+	background: #000000;
+}
+
+p {
+	padding: 0;
+	margin: 0;
+	display: block;
+}

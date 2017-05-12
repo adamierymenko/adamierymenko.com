@@ -7,127 +7,65 @@
 	<meta name="description" content="">
 	<meta name="author" content="Adam Ierymenko">
 	<link href="css/site.css" rel="stylesheet">
+
 	<script>
 		var bstate = false;
 		setInterval(function() {
 			try {
 				var b = document.getElementById('blinky');
 				if (bstate)
-					b.style.background = '#aaaaaa';
-				else b.style.background = '#000000';
+					b.style.background = '#aba5ff';
+				else b.style.background = '#1a00aa';
 				bstate = !bstate;
 			} catch(e) {}
 		},500);
 	</script>
+
 </head>
-<body>
+<body><div class="main"><h1>Adam Ierymenko's Personal Site</h1>
+This is the personal web site of Adam Ierymenko, developer and founder of <a href="https://www.zerotier.com/">ZeroTier, Inc.</a>
 
-<h1>Adam Ierymenko's Personal Site</h1>
+I live in Southern California with my wife and two daughters. I am best known for network protocols today, evolutionary computation stuff in an earlier life, and random juvenile hacks in a still earlier one.
 
-<div class="row"><div class="col-xs-12">
-	<p>
-		This is the personal web site of Adam Ierymenko, developer and founder of <a href="https://www.zerotier.com/">ZeroTier, Inc.</a> I live in Southern California with my wife and two daughters. I am best known for network protocols today, evolutionary computation stuff in an earlier life, and random juvenile hacks in a still earlier one. Here you'll find projects, writings, and anything else I find interesting. 
-	</p>
-	<p>
-		The site's <a href="https://github.com/kristopolous/BOOTSTRA.386">style</a> is an ode to my childhood when I called BBSes on a <a href="https://www.youtube.com/watch?v=ckc6XSSh52w">9600 baud modem</a> and learned to program on <a href="http://www.old-computers.com/museum/computer.asp?st=1&c=98">Commodore</a> and <a href="http://www.old-computers.com/museum/computer.asp?st=1&c=185">IBM PC/AT</a> computers. I spent a lot of time using things like <a href="https://en.wikipedia.org/wiki/Turbo_Pascal">Borland Turbo Pascal</a> that ran on MS-DOS and looked a lot like this theme.
-	</p>
-	<span id="blinky">&nbsp;</span>
-</div></div>
+Here you'll find projects, writings, and anything else I find interesting. 
 
-<br><br>
+The site's style is an ode to the <a href="https://en.wikipedia.org/wiki/Commodore_64">Commodore 64</a>, the first computer I learned to program.<span id="blinky">&nbsp;</span>
 
-<div class="row">
+<h2>Most Popular</h2>
+<a href="https://www.zerotier.com/">ZeroTier, Inc.</a>
+<a href="w_decentralization.html">Decentralization: I Want to Believe</a>
+<a href="p_nanopond.html">Nanopond: a minimal artificial life evolver in C</a>
 
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-primary">
-		<div class="panel-heading">Most Popular</div>
-		<div class="panel-body">
-			<a href="https://www.zerotier.com/">ZeroTier, Inc.</a><br>
-			<a href="w_decentralization.html">Decentralization: I Want to Believe</a><br>
-			<a href="p_nanopond.html">Nanopond: a minimal artificial life evolver in C</a><br>
-		</div>
-	</div>
-</div>
+<h2>Tech Writing</h2>
+<a href="w_docker.html">Docker: Not Even a Linker</a>
+<a href="w_decentralization.html">Decentralization: I Want to Believe</a>
 
-</div>
+<h2>Other Writing</h2>
+<a href="w_titan.html">The Phases of Titan</a>
+<a href="w_eugenics.html">Why Eugenics Won't Work</a>
 
-<br><br>
+<h2>Recent Code</h2>
+<a href="https://github.com/zerotier/ZeroTierOne">ZeroTier: a smart switch for planet Earth</a>
+<a href="https://github.com/adamierymenko/fenc">fenc: a tool to f---ing encrypt a file</a>
+<a href="https://github.com/adamierymenko/kissdb">kissdb: super-minimal key/value dbm</a>
+<a href="https://github.com/adamierymenko/headhunter">headhunter: script to pull every git repo in an area</a>
 
-<div class="row">
+<h2>Old Code</h2>
+<a href="https://github.com/adamierymenko/huffandpuff">huffandpuff: super-minimal Huffman coder</a>
+<a href="p_egads.html">EGADS: genetic algorithm polygaussian approximation</a>
+<a href="https://github.com/adamierymenko/flatland">flatland: N-dimensional plot tool</a>
+<a href="https://github.com/adamierymenko/hyperdrive">hyperdrive: N-dimensional array in Java</a>
+<a href="p_nanopond.html">Nanopond: a minimal artificial life evolver in C</a>
+<a href="archis/index.html">Archis: another artificial life evolver [2002-2003]</a>
 
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-info">
-		<div class="panel-heading">Tech Writing</div>
-		<div class="panel-body">
-			<a href="w_docker.html">Docker: Not Even a Linker</a><br>
-			<a href="w_decentralization.html">Decentralization: I Want to Believe</a><br>
-		</div>
-	</div>
-</div>
+<h2>Ancient Code</h2>
+<a href="ancient.html#exepak">EXEPAK: Linux EXE compressor</a>
+<a href="ancient.html#ansicat">AnsiCat: view ANSI art on Linux</a>
+<a href="ancient.html#purepak">PurePak: IRC script for old Unix ircII</a>
+<a href="ancient.html#textbox">TextBox: Older but more famous IRC script</a>
+<a href="ancient.html#sumo">SUMO: my first non-trivial C program</a>
 
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-info">
-		<div class="panel-heading">Other Writing</div>
-		<div class="panel-body">
-			<a href="w_titan.html">The Phases of Titan</a><br>
-			<a href="w_eugenics.html">Why Eugenics Won't Work</a><br>
-		</div>
-	</div>
-</div>
+<a href="https://twitter.com/adamierymenko">Twitter</a>&nbsp;&nbsp;<a href="https://github.com/adamierymenko">GitHub</a>&nbsp;&nbsp;<a href="https://keybase.io/adamierymenko">Keybase</a>
 
-</div>
-<div class="row">
-
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-info">
-		<div class="panel-heading">Recent Code</div>
-		<div class="panel-body">
-			<a href="https://github.com/zerotier/ZeroTierOne">ZeroTier: a smart switch for planet Earth</a><br>
-			<a href="https://github.com/adamierymenko/fenc">fenc: a tool to f---ing encrypt a file</a><br>
-			<a href="https://github.com/adamierymenko/kissdb">kissdb: super-minimal key/value dbm</a><br>
-			<a href="https://github.com/adamierymenko/headhunter">headhunter: script to pull every git repo in an area</a><br>
-			<br class="hidden-xs hidden-sm">
-			<br class="hidden-xs hidden-sm">
-		</div>
-	</div>
-</div>
-
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-info">
-		<div class="panel-heading">Old Code</div>
-		<div class="panel-body">
-			<a href="https://github.com/adamierymenko/huffandpuff">huffandpuff: super-minimal Huffman coder</a><br>
-			<a href="p_egads.html">EGADS: genetic algorithm polygaussian approximation</a><br>
-			<a href="https://github.com/adamierymenko/flatland">flatland: N-dimensional plot tool</a><br>
-			<a href="https://github.com/adamierymenko/hyperdrive">hyperdrive: N-dimensional array in Java</a><br>
-			<a href="p_nanopond.html">Nanopond: a minimal artificial life evolver in C</a><br>
-			<a href="archis/index.html">Archis: another artificial life evolver [2002-2003]</a><br>
-		</div>
-	</div>
-</div>
-
-</div>
-<div class="row">
-
-<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<div class="panel panel-info">
-		<div class="panel-heading">Ancient Code</div>
-		<div class="panel-body">
-			<a href="ancient.html#exepak">EXEPAK: Linux EXE compressor</a><br>
-			<a href="ancient.html#ansicat">AnsiCat: view ANSI art on Linux</a><br>
-			<a href="ancient.html#purepak">PurePak: IRC script for old Unix ircII</a><br>
-			<a href="ancient.html#textbox">TextBox: Older but more famous IRC script</a><br>
-			<a href="ancient.html#sumo">SUMO: my first non-trivial C program</a><br>
-		</div>
-	</div>
-</div>
-
-</div>
-
-<br>
-<div class="well well-sm">
-	<a href="https://twitter.com/adamierymenko">Twitter</a>&nbsp;&nbsp;<a href="https://github.com/adamierymenko">GitHub</a>&nbsp;&nbsp;<a href="https://keybase.io/adamierymenko">Keybase</a>
-</div>
-
-</body>
+</div></body>
 </html>
