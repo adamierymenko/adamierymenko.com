@@ -8,75 +8,75 @@
     <meta name="author" content="Adam Ierymenko">
 		<link href="css/site.css" rel="stylesheet">
   </head>
-<body><div class="main"><h1>Docker: Not Even a Linker</h1>
-<a class="btn btn-default" href="index.html">&lt;&lt; Back</a>
-<br><br><br>
+<body>
+<a href="index.html" class="back">&lt;&lt;</a>
+<h1>Docker: Not Even a Linker</h1>
+<h4>Adam Ierymenko / 2015-06-30</h4>
+
+<hr>
 
 <h2>What is Docker really?</h2>
 <p>
 It's not a container-based hosting solution in the mold of OpenVZ or BSD jails. The very first time I tried it, I spent forever trying to figure out how to change configuration options like which /dev nodes were available in a running container. Eventually I had the Docker "aha!" moment: you don't change running containers. You kill them and start new ones. They're processes, not systems.
-</p><p>
+
 This is a different paradigm: immutable application containers that are run and treated like processes.
-</p><p>
+
 But what are they?
-</p><p>
+
 The other day I think it finally hit me: Docker is a tool to make manual linking easier. More specifically, it's a tool to let you do manual linking and then save your work.
-</p><p>
+
 This realization was simultaneously enlightening and anticlimactic. I thought: is that all?
 </p>
 <h2>What is a linker?</h2>
 <p>
 If you've ever used gcc, clang, or Visual Studio before, you've watched compilers build programs. In a typical compilation of a C or C++ project, the compiler will build a bunch of object files and then link them. Object files contain your program translated into machine code (or some other intermediate format). But your program almost always calls a bunch of other code, so linking is the process of connecting it to the other things it needs.
-</p><p>
+
 Wikipedia has a decent page on the 'linker' that explains what it does. Let's say I write a C program that uses the "printf" function. When I compile it into an object file, it'll contain a reference that says "call to printf goes here." The "printf" function is not a part of my program-- it's another piece of code that lives in something called a library. The linker is a program that looks at my program's object code, looks up all the symbols it uses (like "printf"), and then connects these up to those references to that when I run my program it'll actually call "printf" and print something to the terminal.
-</p><p>
+
 The reality is more complex, and also includes the concept of dynamic linking. Sometimes (unless I am writing in Go) I don't want to bundle all my code together into one giant hulking binary. Instead, I'd like to keep my libraries in separate files and have them loaded at run time. This is called dynamic linking, and is how most linking is done on most systems today. A dynamic linker just does what an ordinary linker does, but in memory when the program launches.
 </p>
 <h2>What is a linker, conceptually?</h2>
 <p>
 When most programmers think of linkers, they immediately think of the way they work with typical C/C++ program object code. But let's take a step back. Ignore the details. What does a linker do?
-</p><p>
+
 A linker is a program that automates the tedious task of joining pieces of code together.
-</p><p>
+
 This definition of course encompasses things like Unix's "ld" and Windows "link." It also arguably includes glue factories like SWIG. Anything that automates the connection of one piece of code with another could be called a linker.
 </p>
 <h2>Meta-Binaries</h2>
 <p>
 Just imagine a world without linkers. Every single time you build a program -- or in the case of dynamic linking every time you run it -- you must manually hex edit its binary machine code and insert the addresses of every single external function the program uses.
-</p><p>
+
 But you don't have to imagine. Ever configure a LAMP stack that also happens to require Redis and Memcached?
-</p><p>
+
 But those are separate programs, right?
-</p><p>
+
 Think conceptually. Programs are not fundamentally different from libraries. They're just pieces of code, and stacks are just big meta-binaries built out of them.
-</p><p>
+
 But since there is no linker for stacks, when you set them up you have to do it manually. The fact that you accomplish this by editing config files, setting up local TCP ports, copying local authentication credentials between applications, etc. is immaterial. This is just another somewhat higher level way of joining pieces of code together. The protocols these programs speak to one another are just function call and state transfer ABIs.
 </p>
 <h2>Not Even a Linker</h2>
 <p>
 So Docker is a linker, right? No. It's not even that.
-</p><p>
+
 All Docker really does is let you set up a stack (a.k.a. compile and link a meta-binary) once, then save your work. Once you've saved your work, you can then launch more copies of your big stack without having to manually link it again.
-</p><p>
+
 Docker also contains a bunch of other bells and whistles like networking, runtime permission control, VXLAN overlays for connecting up containers across hosts in the same data center or LAN, and so forth. But all that's just chrome. A tool that lets you save your manual linking work is its core feature. Without that, it'd be just another hosting solution to help you run servers-inside-servers.
 </p>
 <h2>A Linker for Stacks?</h2>
 <p>
 So is it true? Is there no linker for stacks?
-</p><p>
+
 Not quite. As I said, a linker is an obvious thing to write. People have certainly tried, but they've suffered from the handicap of not realizing what they were doing.
-</p><p>
+
 Attempts at linkers for stacks exist: Chef, Puppet, and Saltstack come to mind. These also contain a bunch of other bells and whistles, but at their core they are attempts to create scriptable linkers for assembling smaller programs into larger ones.
-</p><p>
+
 But these, as anyone who's used them can attest, can get complex and cumbersome. I suggest that this is a consequence of them having been written by developers who mistakenly though they were writing enterprise server management suites. Had their developers known what they were actually writing, perhaps we'd have a lean and mean solution that did the right thing.
-</p><p>
+
 If we did that, would we still need Docker?
-</p><p>
+
 Maybe. I could see it being useful. But I'm not sure it would be as hot and trendy if we had a really good "ld.so" for stacks. Instead of building and filing away heaps of immutable (read: security nightmare) containers, we'd just have a dynamic linker for programs made of programs.
 </p>
 
-<br>
-<a class="btn btn-default" href="index.html">&lt;&lt; Back</a>
-<br>
-
-</div></body></html>
+</body>
+</html>

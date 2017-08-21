@@ -1,0 +1,56 @@
+html,body {
+	font-size: 14pt;
+	font-family: 'Menlo','Andale Mono','Bitstream Vera Sans Mono','Courier New',monospace;
+	background: #000000;
+	color: #99ff99;
+	padding: 0;
+	margin: 0.5%;
+}
+
+a {
+	color: #9999ff;
+}
+a:visited {
+	color: #9999ff;
+}
+
+p {
+	white-space: pre-line;
+	padding: 0 0 2rem 0;
+	margin: 0;
+}
+
+h1,h2,h3,h4 {
+	color: #ffffff;
+	padding: 0;
+	margin: 0;
+}
+
+hr {
+	margin: 2rem 0 2rem 0;
+}
+
+h1 {
+	font-size: 32pt;
+}
+h2 {
+	font-size: 24pt;
+}
+h3 {
+	font-size: 18pt;
+}
+h4 {
+	font-size: 12pt;
+}
+
+a.back {
+	height: 4rem;
+	color: #9999ff;
+	float: left;
+	width: 5rem;
+	text-decoration: none;
+	font-size: 3rem;
+	text-align: left;
+	display: inline-block;
+	vertical-align: middle;
+}
