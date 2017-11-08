@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Decentralization: I Want To Believe</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="author" content="Adam Ierymenko">
+	<link href="site.css" rel="stylesheet">
+	<script src="showdown.min.js"></script>
+</head>
+<body id="html" onload="document.getElementById('html').innerHTML = (new showdown.Converter()).makeHtml(document.getElementById('md').value);"><textarea readonly id="md">
+
+# Decentralization: I Want To Believe
+
+*[Adam Ierymenko](index.html) | August 1st, 2014*
+
+My current project is a network virtualization engine called [ZeroTier One](https://www.zerotier.com/). It has a new network protocol that I designed from scratch, and in the process of doing so I put a lot of thought and research into the question of just how decentralized I could make it.
+
+There are two reasons I cared. One is sort of techno-political: I wanted to help swing the pendulum back in the direction "personal" computing. Indeed, one of the first communities I showed ZeroTier to and got feedback from was called [redecentralize.org](http://redecentralize.org). The second reason is more pragmatic: the more peer-to-peer and the less centralized I could make the basic protocol, the less it would cost to run.
+
+The design I settled on is ultimately rather boring. I built a peer-to-peer protocol with a central hub architecture comprised of multiple redundant shared-nothing anchor nodes at geographically diverse points on the global Internet.
+
+I designed the protocol to be *capable* of evolving toward a more decentralized design in the future without disrupting existing users, but that's where it stands today.
+
+Why didn't I go further? Why didn't I go for something more sexy and radical, like what [MaidSafe](http://maidsafe.net) and [TeleHash](http://telehash.org) and others are trying to accomplish? It certainly would have netted me more attention. As it stands, there's a cadre of users that dismiss ZeroTier when they learn there are central points.
+
+I stopped because I got discouraged. **I'm not convinced it's possible**, at least not without sacrifices that would be unacceptable to most users.
+
+### Defining the Problem
+
+I began the technical design of ZeroTier with a series of constraints and goals for the underlying peer-to-peer network that would host the Ethernet virtualization layer. They were and are in my head, so let me try to articulate them now. These are in order of importance, from most to least.
+
+1. Any device must be able, by way of a persistent address, to contact any other connected device in the world at any time. Initialization of connectivity should take no longer than one second on average, ideally as close as possible to underlying network latency. (Non-coincidentally, this is what [IP](http://mythz.servicestack.net/blog/2013/02/27/the-deep-insights-of-alan-kay/) originally did before mobility broke the "static" part and [NAT](https://www.zerotier.com/blog/?p=13) and other kinds of poorly conceived fail broke IP generally.)
+
+2. **It must just work.** It must be "zero configuration." The underlying design must enable a user experience that does not invite the ghost of Steve Jobs to appear in my dreams and berate me.
+
+3. If the underlying network location of a peer changes, such as by leaving hotel WiFi and joining a 4G access point, connectivity and reachability as seen by any arbitrary device in the world should not lapse for longer than ten seconds. (This is just an aspect of goal two, but it's worth stating separately because it will have implications later in the discussion.)
+
+4. It must work for users obtaining their Internet service via all kinds of real-world networks including misconfigured ones, double-NAT and other horrors, firewalls whose clueless administrators think blocking everything but http and https does anything but inconvenience their users more than their attackers, etc.
+
+5. Communication should be private, encrypted, authenticated, and generally secure. Security should be end to end, with secret keys not requiring central escrow. The network must be robust against "split brain" and other fragmentations of the address space (whether intentionally-induced or not) and [Sybil attacks](https://en.wikipedia.org/wiki/Sybil_attack).
+
+6. The overall network should be as decentralized as possible. Peer to peer connectivity should always be preferred, and centralized points of control should be minimized or eliminated.
+
+There are other technical constraints, but they're not pertinent to this discussion.
+
+The important thing is the ordering. **Decentralization comes in dead last. Even security comes in second to last.**
+
+Why?
+
+Because if the first two items are not achieved, nobody will use this and I'm wasting my time by developing it.
+
+After a lot of reading and some experimentation with my own code and the work of others, I concluded that the first five are almost totally achievable at the expense of decentralization.
+
+I came up with a triangle relationship: **efficiency, security, decentralization, pick two.**
+
+Security is equivalent with reliability, since reliability is just security vs "attacks" that do not originate in human agency.
+
+### Why?
+
+It's not a government conspiracy, and it's not market forces... at least not directly. This is absolutely a technical problem. If it looks like any of the other two, that's a side effect of technical difficulty.
+
+People want decentralization. Any time someone attempts it seriously, it gets bumped to the very top on sites like Reddit and Hacker News. Even top venture capitalists are [talking about it](https://twitter.com/dhammer/status/443168138629496832) and investing in decentralized systems when investable opportunities in the area present themselves. Governments even want it, at least in certain domains. For years military R&D labs have attempted to build highly robust decentralized mesh networks. They want them for the same reason hacktivists and cyber-libertarians do: censorship resistance. In their case the censorship they want to avoid is adversarial interference with battlefield communication networks.
+
+From a market point of view the paucity of decentralized alternatives is a supply problem, not a demand problem. People want speed, security, and an overall positive user experience. Most don't care at all how these things are achieved, but enough high-influence users are biased toward decentralization that in a contest between equals their influence would likely steer the whole market in that direction. There aren't any decentralized alternatives to Facebook, Google, or Twitter because **nobody's been able to ship one**.
+
+[This paper](https://www.zerotier.com/misc/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf), which I found during my deep dive on distributed systems, reaches more or less the same conclusion I did in the first section and elaborates upon it mathematically. It speaks in terms of queueing and phase transitions, but it's not hard to leap from that to more concrete factors like speed, stability, and scalability.
+
+I think the major culprit might be the [CAP  theorem](https://en.wikipedia.org/wiki/CAP_theorem). A distributed database cannot simultaneously provide consistency, availability, and partition tolerance. You have to pick two, which sounds familiar. I haven't tried to do this rigorously, but my intuition is that my trichotomy on distributed networks is probably a domain-specific restatement of CAP.
+
+Every major decentralized system we might want to build involves some kind of distributed database.
+
+Let's say we want to make the ZeroTier peer-to-peer network *completely* decentralized, eliminating central fixed anchor nodes. Now we need a fast, lightweight distributed database where changes in network topology can rapidly be updated and made available to everyone at the same time. We also need a way for peers to reliably find and advertise help when they need to do things like traverse NAT or relay.
+
+If we pick consistency and availability, the network can't tolerate Internet weather or edge nodes popping up and shutting down. That's a non-starter for a decentralized system built out of unreliable consumer devices and cloud servers that are created and destroyed at a whim. If we pick availability and partition tolerance we have a system trivially vulnerable to Sybil attacks, not to mention failing to achieve goals #2 and #3. If we pick consistency and partition tolerance, the network goes down all the time and is horrendously slow.
+
+### But Bitcoin!
+
+Nope.
+
+Bitcoin operates within the constraints of "efficiency, security, decentralization, pick two." Bitcoin picks security and decentralization at the expense of efficiency.
+
+A centralized alternative to Bitcoin would be a simple SQL database with a schema representing standard double-entry accounting and some meta-data fields. The entire transaction volume of the Bitcoin network could be handled by a [Raspberry Pi](http://www.raspberrypi.org) in a shoebox.
+
+Instead, we have a transaction volume of a few hundred thousand database entries a day being handled by a compute cluster comparable to those used to simulate atomic bomb blasts with physically realistic voxel models or probabilistically describe a complete relationship graph for the human proteome.
+
+Bitcoin gets away with this by riding on a speculative frenzy, and by compensating people for their compute power via mining. If every Bitcoin transaction included a fee equal to the energy and amortized hardware cost required to complete, verify, and record it, I'm not convinced Bitcoin would be any cheaper than conventional banking with all its political, regulatory, and personnel overhead.
+
+I am not bashing Bitcoin. It's arguably one of the most impressive and creative hacks in the history of cryptography and distributed systems. It's a genuine innovation. It's useful, but it's not the holy grail.
+
+(A few more of [my thoughts on Bitcoin can be found here](https://medium.com/p/624f7639b2a5). TL;DR: I also think Bitcoin, when considered in totality as a system with multiple social, economic, and technical components, has many hidden informal points of central coordination and control. It's not truly "headless.")
+
+The holy grail would be something at least lightweight enough (in bandwidth and CPU) for a mobile phone, cryptographically secure, as reliable as the underlying network, and utterly devoid of a center.
+
+**I want to believe**, but I've become a skeptic. Hackers of the world: please prove me wrong.
+
+### Blind Idiot Gods
+
+Perhaps we should stop letting the perfect be the enemy of the good.
+
+Facebook, Twitter, Google, the feudal "app store" model of the mobile ecosystem, and a myriad other closed silos are clearly a lot more centralized than what many of us would want. All that centralization comes at a cost: monopoly rents, mass surveillance, functionality gate keeping, uncompensated monetization of our content, and diminished opportunities for new entrepreneurship and innovation.
+
+The title of the [Tsitsiklis/Xu paper](https://www.zerotier.com/misc/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf) I linked above is "On the Power of (even a little) Centralization in Distributed Processing."
+
+The question we should be asking is: **how little** centralization can we get away with? Do we have to dump absolutely everything into the gaping maw of "the cloud" to achieve security, speed, and a good user experience, or can we move *most* of the intelligence in the network to the edges?
+
+This is the reasoning process that guided the design of the ZeroTier network. After concluding that total decentralization couldn't (barring future theoretical advances) be achieved without sacrificing the other things users cared about, I asked myself how I might minimize centralization. The design I came up with relegates the task of the "supernodes" in the center to one of simple peer location lookup and dumb packet relaying. I was also able to architect the protocol so there isn't much in the way of design asymmetry, allowing supernodes to run [exactly the same software](https://github.com/zerotier/ZeroTierOne) as regular peers. Instead of client server, I came up with a design that was peer to (super-)peer to peer.
+
+Can we go further? If we start with a client-server silo and decentralize until it hurts, what's left?
+
+Unless I'm missing it, I don't think the Tsitsiklis/Xu paper establishes a precise definition for *exactly what kind* of centralization is needed. It does provide a mathematical model that can tell us something about thresholds, but I don't see a precise demarcation of responsibility and character.
+
+Once we know that, perhaps we can create a blind idiot God for the Internet.
+
+I'm borrowing the phrase from H.P. Lovecraft, who wrote of a "blind idiot God in the center of the universe" whose "piping" dictates the motion of all. The thing I'm imagining is a central database that leverages cryptography to achieve **zero knowledge centralization** sufficient to allow **maximally decentralized** systems to achieve the **phase transition** described in the Tsitsiklis/Xu paper. Around this system could be built all sorts of things. It would coordinate, but it would have no insight. It would be blind.
+
+Could such a **provably minimal hub** be built? Could it be cheap enough to support through donations, like Wikipedia? Could it scale sufficiently to allow us to build decentralized alternatives to the entire closed silo ecosystem?
+
+It's one of the things I'd like to spend a bit of time on in the future. For now I'm concentrating on improving ZeroTier and getting something like a "real business" under it. Maybe then I can do R&D in this area and get paid for it. After all, some of these questions are synonymous with "how can I scale ZeroTier out to >100,000,000 users without eating it on bandwidth costs and performance degradation?"
+
+In the meantime, please do your own hacking and ask your own questions. If you come up with different answers, [let me know](mailto:adam.ierymenko@zerotier.com). The feudal model is closing in. We need alternatives.
+
+</textarea></body></html>

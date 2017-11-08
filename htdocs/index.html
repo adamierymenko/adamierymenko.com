@@ -4,16 +4,15 @@
 	<meta charset="utf-8">
 	<title>Adam Ierymenko</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Adam Ierymenko's Personal Site">
 	<meta name="author" content="Adam Ierymenko">
 	<link href="site.css" rel="stylesheet">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.1/showdown.min.js"></script>
+	<script src="showdown.min.js"></script>
 </head>
 <body id="html" onload="document.getElementById('html').innerHTML = (new showdown.Converter()).makeHtml(document.getElementById('md').value);"><textarea readonly id="md">
 
 # Adam Ierymenko
 
-This is the web site of Adam Ierymenko, programmer and entrepreneur. I am the founder of [ZeroTier, Inc.](https://www.zerotier.com) and am generally interested in things like computer science, artificial intelligence, biology, psychology, and business. I'm best known for my work in network protocols, peer to peer and distributed systems, and in a previous life for a great deal of work in artificial life and evolutionary computation.
+This is the web site of Adam Ierymenko, programmer and entrepreneur. I am the founder of [ZeroTier, Inc.](https://www.zerotier.com) and am generally interested in things like computer science, artificial intelligence, cryptography, biology, complex systems, informatics, and business. I'm best known for my work in network protocols, peer to peer and distributed systems, and in a previous life for a great deal of work in [artificial life and evolutionary computation](http://www.greythumb.org).
 
 I live in Orange County, California (Los Angeles metro area) with my wife and two daughters. Since I'm a founder of a startup and a father of two young kids when I'm not working or spending time with them I like to sleep (if possible).
 
@@ -23,7 +22,11 @@ I live in Orange County, California (Los Angeles metro area) with my wife and tw
 
 ## Essays and Rants
 
-This is not a complete archive. I recently devolved my site from a blog into a simple static web site and I only bothered preserving the stuff I felt was worth preserving.
+This is not a complete archive. I recently upgraded my site from a dynamic blog to a simple static web site and I didn't bother preserving things that were badly written, no longer relevant, or that made me sound like an idiot.
+
+ * [Privileged Ports Cause Climate Change](ports.html): How little details about system design can have large effects later in a system's evolution.
+
+ * [The Phases of Titan](titan.html): An information theoretic argument for why Saturn's moon Titan is a good candidate for life.
 
  * [Decentralization: I Want To Believe](decentralization.html): An essay on decentralized network protocols that I wrote while doing design work on ZeroTier. Some of the thoughts here are a little out of date, but it shows the line of reasoning that lead to its current design and also contains some general musings about radically decentralized software systems and how they might and might not be built.
 
@@ -43,11 +46,27 @@ This is not a complete archive. I recently devolved my site from a blog into a s
 
  * [hyperdrive: Java N-dimensional arrays](https://github.com/adamierymenko/hyperdrive): N-dimensional arrays in Java
 
- * [nanopond: tiny C artificial life system](nanopond.html): A tiny C program that generates and executes evolvable computer programs in a 2d array world and demonstrated undirected evolution by natural selection.
+ * [nanopond: tiny C artificial life system](https://github.com/adamierymenko/nanopond): A tiny C program that generates and executes evolvable computer programs in a 2d array world and demonstrated undirected evolution by natural selection.
 
  * [archis: an artificial life system in Java](archis/index.html): A college project implementing an evolvable artificial life system in Java with support for plugins, clusters, experiments, and genesis from randomness (it generates programs until one can replicate). This is the original web site and is pretty much completely unmodified since roughly 2002. I tried it a few years ago and it still worked on a modern JVM.
 
  * [Really ancient stuff](ancient.html) including IRC scripts and hacks. This includes SUMO, my first non-trivial C program. It's an IRC "nick collider" bot, which is something that exploits a very old and simple IRC vulnerability allowing you to kick people offline by duplicating their nickname on another server. I wrote it when I was fifteen or sixteen.
+
+## Really Ancient Projects
+
+This is *really* ancient stuff, like code that no longer works on modern systems and IRC hacks written when I was a [k-r4d 31337](https://en.wikipedia.org/wiki/Leet) teenager in the late 1990s.
+
+ * [Mersenne Twister for the IBM Cell Broadband Engine SPE](files/ancient/MersenneTwister32_spe.cpp): A C implementation of the Mersenne Twister pseudo-random number generator for the old (and now discontinued) IBM Cell Broadband Engine heterogenous parallel CPU's "SPE" unit.
+
+ * [EXEPAK 1.1](files/ancient/exepak-1.1.tar.gz): A Linux file compression program that used the LZO compression libraries. It was very fast and efficient. I have no idea if this will still work on modern Linux systems.
+
+ * [AnsiCat and libvcs](files/ancient/libvcs-1.0.tar.gz): This is a really neat little library and program to print ANSI graphics (such as the old ANSI art from back in the BBS days) to a Linux console. It will only work on a real Linux console, as it writes directly to video RAM via the vcs devices in /dev. It even supported a neat delay feature that would simulate the effect of seeing an ANSI print out over a slow modem connection. I'm not sure if it works on modern kernels.
+
+ * [TextBox version 6.21](files/ancient/textbox.irc.gz): Yes, this is the infamous textbox.irc in all it's glory. It is written for ye olde IRC client (ircII) and was one of the first really huge everything-and-the-kitchen-sink IRC scripts. It was also the first script to introduce the /clonebots command. This resulted from my discovery of the DCC RAW functionality of the IRC client. Sorry.
+
+ * [PurePak version 2.07](files/ancient/purepak207.zip): This is PurePak version 2.07. PurePak was my second IRC script and was an almost total rewrite of TextBox. It was the first script to feature modules and it's own module interface that almost resembled an API. It did things with a simple language like IRC script that should not be spoken of. I had way too much time on my hands back then.
+
+ * [SUMO nick collider](files/ancient/sumo.c.gz): This was my first nontrivial C program. It was a robot that sat on IRC and tried to "nick collide" people. You see, back in the old days of IRC you could kick people off the network by duplicating their nick on another server immediately after they changed nick. This would cause both connections to be dropped when the servers attempted to synchronize with each other. This will not work anymore on modern IRC networks, so it's just here to show everyone how 31337 I was when I was 15. :)
 
 ## About the Site's Rendering
 
