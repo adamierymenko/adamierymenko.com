@@ -4,10 +4,58 @@
 	<meta charset="utf-8">
 	<title>Adam Ierymenko</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="">
+	<meta name="description" content="Adam Ierymenko's Personal Site">
 	<meta name="author" content="Adam Ierymenko">
 	<link href="site.css" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.8.1/showdown.min.js"></script>
 </head>
+<body id="html" onload="document.getElementById('html').innerHTML = (new showdown.Converter()).makeHtml(document.getElementById('md').value);"><textarea readonly id="md">
+
+# Adam Ierymenko
+
+This is the web site of Adam Ierymenko, programmer and entrepreneur. I am the founder of [ZeroTier, Inc.](https://www.zerotier.com) and am generally interested in things like computer science, artificial intelligence, biology, psychology, and business. I'm best known for my work in network protocols, peer to peer and distributed systems, and in a previous life for a great deal of work in artificial life and evolutionary computation.
+
+I live in Orange County, California (Los Angeles metro area) with my wife and two daughters. Since I'm a founder of a startup and a father of two young kids when I'm not working or spending time with them I like to sleep (if possible).
+
+[Twitter](https://twitter.com/adamierymenko)<br>
+[GitHub](https://github.com/adamierymenko)<br>
+[Keybase](https://keybase.io/adamierymenko)
+
+## Essays and Rants
+
+This is not a complete archive. I recently devolved my site from a blog into a simple static web site and I only bothered preserving the stuff I felt was worth preserving.
+
+ * [Decentralization: I Want To Believe](decentralization.html): An essay on decentralized network protocols that I wrote while doing design work on ZeroTier. Some of the thoughts here are a little out of date, but it shows the line of reasoning that lead to its current design and also contains some general musings about radically decentralized software systems and how they might and might not be built.
+
+## Projects
+
+ * [ZeroTier: A Smart Switch for Planet Earth](https://www.zerotier.com/): A serious effort to radiacally simplify networking to save time and money and help decentralize the Internet.
+
+ * [fenc: a tool to just f--king encrypt a file](https://github.com/adamierymenko/fenc): I wrote this in a bout of rage after trying several times to remember how to do simple symmetric encryption with gpg and its utterly inconsistent obtuse command line semantics.
+
+ * [kissdb: super-minimal key/value store](https://github.com/adamierymenko/kissdb): An exercise in minimalism with in-filesystem data stores, used in some early versions of ZeroTier and apparently has found use in a few indie games.
+
+ * [headhunter: script to pull every GitHub repo in a geographical area](https://github.com/adamierymenko/headhunter): Something we used at ZeroTier to look for employees.
+
+ * [huffandpuff: super-minimal Huffman coder](https://github.com/adamierymenko/huffandpuff): An exercise in minimalism with Huffman coding.
+
+ * [flatland: N-dimensional plot tool](https://github.com/adamierymenko/flatland): A simple n-dimensional plot tool based on star coordinates. It's old but still works.
+
+ * [hyperdrive: Java N-dimensional arrays](https://github.com/adamierymenko/hyperdrive): N-dimensional arrays in Java
+
+ * [nanopond: tiny C artificial life system](nanopond.html): A tiny C program that generates and executes evolvable computer programs in a 2d array world and demonstrated undirected evolution by natural selection.
+
+ * [archis: an artificial life system in Java](archis/index.html): A college project implementing an evolvable artificial life system in Java with support for plugins, clusters, experiments, and genesis from randomness (it generates programs until one can replicate). This is the original web site and is pretty much completely unmodified since roughly 2002. I tried it a few years ago and it still worked on a modern JVM.
+
+ * [Really ancient stuff](ancient.html) including IRC scripts and hacks. This includes SUMO, my first non-trivial C program. It's an IRC "nick collider" bot, which is something that exploits a very old and simple IRC vulnerability allowing you to kick people offline by duplicating their nickname on another server. I wrote it when I was fifteen or sixteen.
+
+## About the Site's Rendering
+
+This site is written as static Markdown and uses [ShowdownJS](http://showdownjs.com) to convert it browser-side into HTML. If you don't have JavaScript enabled you will see the source, which remains human readable but is not as pretty. Welcome to (cue reverb) the future!
+
+</textarea></body></html>
+
+<!--
 <body>
 <h1>Adam Ierymenko</h1>
 
@@ -16,7 +64,7 @@ This is the personal web site of Adam Ierymenko, developer and founder of <a hre
 
 I live in Southern California with my <a href="https://www.socialscore.org">wife</a> and two daughters.
 
-These days I'm probably best known for network protocols and Internet decentralization. In a previous life I was very much into <a href="http://greythumb.org/">evolutionary compuation</a>. Here you'll find projects, writings, and anything else I find interesting. 
+These days I'm probably best known for network protocols and Internet decentralization. In a previous life I was very much into <a href="http://greythumb.org/">evolutionary compuation</a>. Here you'll find projects, writings, and anything else I find interesting.
 </p>
 
 <h2>Tech Writing</h2>
@@ -63,4 +111,4 @@ These days I'm probably best known for network protocols and Internet decentrali
 <a href="https://twitter.com/adamierymenko">Twitter</a>&nbsp;&nbsp;<a href="https://github.com/adamierymenko">GitHub</a>&nbsp;&nbsp;<a href="https://keybase.io/adamierymenko">Keybase</a>&nbsp;&nbsp;<a href="mailto:adam.ierymenko@gmail.com">E-Mail</a>&nbsp;&nbsp;<a href="https://21.co/adamierymenko/">21.co</a>
 
 </body>
-</html>
+-->
