@@ -36,7 +36,11 @@ h4 {
 }
 
 textarea {
-	width: 100%;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 2%;
+	width: 96%;
 	height: 100%;
 	margin: 0;
 	padding: 0;
