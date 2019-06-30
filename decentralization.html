@@ -64,7 +64,7 @@ People want decentralization. Any time someone attempts it seriously, it gets bu
 
 From a market point of view the paucity of decentralized alternatives is a supply problem, not a demand problem. People want speed, security, and an overall positive user experience. Most don't care at all how these things are achieved, but enough high-influence users are biased toward decentralization that in a contest between equals their influence would likely steer the whole market in that direction. There aren't any decentralized alternatives to Facebook, Google, or Twitter because **nobody's been able to ship one**.
 
-[This paper](https://www.zerotier.com/misc/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf), which I found during my deep dive on distributed systems, reaches more or less the same conclusion I did in the first section and elaborates upon it mathematically. It speaks in terms of queueing and phase transitions, but it's not hard to leap from that to more concrete factors like speed, stability, and scalability.
+[This paper](https://storage.googleapis.com/zt-web-large-files/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf), which I found during my deep dive on distributed systems, reaches more or less the same conclusion I did in the first section and elaborates upon it mathematically. It speaks in terms of queueing and phase transitions, but it's not hard to leap from that to more concrete factors like speed, stability, and scalability.
 
 I think the major culprit might be the [CAP  theorem](https://en.wikipedia.org/wiki/CAP_theorem). A distributed database cannot simultaneously provide consistency, availability, and partition tolerance. You have to pick two, which sounds familiar. I haven't tried to do this rigorously, but my intuition is that my trichotomy on distributed networks is probably a domain-specific restatement of CAP.
 
@@ -100,7 +100,7 @@ Perhaps we should stop letting the perfect be the enemy of the good.
 
 Facebook, Twitter, Google, the feudal "app store" model of the mobile ecosystem, and a myriad other closed silos are clearly a lot more centralized than what many of us would want. All that centralization comes at a cost: monopoly rents, mass surveillance, functionality gate keeping, uncompensated monetization of our content, and diminished opportunities for new entrepreneurship and innovation.
 
-The title of the [Tsitsiklis/Xu paper](https://www.zerotier.com/misc/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf) I linked above is "On the Power of (even a little) Centralization in Distributed Processing."
+The title of the [Tsitsiklis/Xu paper](https://storage.googleapis.com/zt-web-large-files/2011__A_Little_Centralization__Tsitsiklis_Xu.pdf) I linked above is "On the Power of (even a little) Centralization in Distributed Processing."
 
 The question we should be asking is: **how little** centralization can we get away with? Do we have to dump absolutely everything into the gaping maw of "the cloud" to achieve security, speed, and a good user experience, or can we move *most* of the intelligence in the network to the edges?
 
